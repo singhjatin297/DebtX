@@ -7,6 +7,8 @@ import authRoutes from "./routes/authRoutes";
 import customerRoutes from "./routes/customerRoutes";
 import paymentRoutes from "./routes/paymentRoutes";
 import notificationRoutes from "./routes/notificationRoutes";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./swagger";
 
 const app = express();
 const server = http.createServer(app);
@@ -45,6 +47,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/customers", customerRoutes(io));
 app.use("/api/payments", paymentRoutes(io));
 app.use("/api/notifications", notificationRoutes());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
