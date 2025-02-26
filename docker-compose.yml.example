@@ -1,0 +1,39 @@
+# C:\Users\singh\collection\docker-compose.yml.example
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - PORT=4000
+      - DATABASE_URL=${DATABASE_URL} # Replace with your DB URL
+      - COOKIE_SECRET=${COOKIE_SECRET} # Replace with your secret
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/app
+    command: npm run dev
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:4000/api
+      - NEXT_PUBLIC_SOCKET_URL=http://backend:4000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+    depends_on:
+      - backend
+    command: npm run dev
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+    enable_ipv6: false
