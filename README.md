@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DebtX
 
-## Getting Started
+## Project Overview
 
-First, run the development server:
+DebtX is a full-stack debt collection and management application designed to streamline tracking and managing customer debts. It features a Next.js frontend for a responsive UI, a Node.js/Express backend with real-time notifications via Socket.IO, and a PostgreSQL database (hosted on Supabase) managed with Prisma ORM. Key functionalities include uploading customer data (via Excel/CSV or single entry), viewing dynamic dashboards, managing payment statuses, and receiving real-time activity updates.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Setup Instructions
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Local Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/singhjatin297/DebtX.git
+   cd DebtX
+   ```
+2. cd backend
+   npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. cd ..
+   npm install
 
-## Learn More
+4. setup .env file based on .env.example for both frontend
 
-To learn more about Next.js, take a look at the following resources:
+5. cd backend
+   npm run dev
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+6. cd ..
+   npm run dev
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+7. start both frontend and backend with npm run dev
 
-## Deploy on Vercel
+Technical Decisions
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    Next.js: Selected for its fast frontend development, built-in routing, and client-side rendering capabilities, enhancing user experience with a
+    responsive dashboard.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    Node.js/Express: Provides a lightweight, flexible backend with RESTful APIs and integrates seamlessly with Socket.IO for real-time features.
+
+    Prisma: Simplifies database interactions with type-safe queries and migrations, ideal for managing PostgreSQL data.
+
+    Socket.IO: Enables real-time updates for notifications (e.g., payment status changes, new customers), improving user engagement.
+
+    PostgreSQL (Supabase): Chosen as a hosted SQL database for structured data management, meeting the "SQL/Elasticsearch" requirement (Elasticsearch considered for future search).
+
+    JWT with Cookies: Adopted for stateless, secure authentication (using token cookie), aligning with the spec’s "JWT authentication" requirement over session-based cookies.
+
+    Docker: Included for consistent environments, though currently being debugged for full functionality.
+
+Future Improvements
+
+    Docker Fix: Resolve .env loading issues in docker-compose.yml for seamless containerized deployment.
+
+    Pagination: Implement for customers and notifications to handle large datasets efficiently.
+
+    Enhanced Authentication: Explore OAuth or additional JWT features (e.g., refresh tokens) for broader security options.
+
+    Testing: Add unit and integration tests for API endpoints, Socket.IO events, and frontend components.
+
+    UI Enhancements: Incorporate more Framer Motion animations for a polished, interactive experience.
+
+    Search Functionality: Integrate Elasticsearch for advanced search capabilities if required by future needs.

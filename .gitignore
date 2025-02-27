@@ -56,3 +56,6 @@ build/
 
 # Ignore logs
 *.log
+
+# backend env file
+backend/.env
