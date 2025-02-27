@@ -13,49 +13,55 @@ DebtX is a full-stack debt collection and management application designed to str
    git clone https://github.com/singhjatin297/DebtX.git
    cd DebtX
    ```
-2. cd backend
+2. ```bash
+   cd backend
    npm install
+   ```
 
-3. cd ..
+3. ```bash
+   cd ..
    npm install
+   ```
 
 4. setup .env file based on .env.example for both frontend
 
-5. cd backend
+5. ```bash
+   cd backend
    npm run dev
+   ```
 
-6. cd ..
+6. ```bash
+   cd ..
    npm run dev
+   ```
 
 7. start both frontend and backend with npm run dev
 
-Technical Decisions
+### Technical Decisions
 
-    Next.js: Selected for its fast frontend development, built-in routing, and client-side rendering capabilities, enhancing user experience with a
+1.  Next.js: Selected for its fast frontend development, built-in routing, and client-side rendering capabilities, enhancing user experience with a
     responsive dashboard.
 
-    Node.js/Express: Provides a lightweight, flexible backend with RESTful APIs and integrates seamlessly with Socket.IO for real-time features.
+2.  Node.js/Express: Provides a lightweight, flexible backend with RESTful APIs and integrates seamlessly with Socket.IO for real-time features.
 
-    Prisma: Simplifies database interactions with type-safe queries and migrations, ideal for managing PostgreSQL data.
+3.  Prisma: Simplifies database interactions with type-safe queries and migrations, ideal for managing PostgreSQL data.
 
-    Socket.IO: Enables real-time updates for notifications (e.g., payment status changes, new customers), improving user engagement.
+4.  Socket.IO: Enables real-time updates for notifications (e.g., payment status changes, new customers), improving user engagement.
 
-    PostgreSQL (Supabase): Chosen as a hosted SQL database for structured data management, meeting the "SQL/Elasticsearch" requirement (Elasticsearch considered for future search).
+5.  PostgreSQL (Supabase): Chosen as a hosted SQL database for structured data management, meeting the "SQL/Elasticsearch" requirement (Elasticsearch considered for future search).
 
-    JWT with Cookies: Adopted for stateless, secure authentication (using token cookie), aligning with the spec’s "JWT authentication" requirement over session-based cookies.
+6.  JWT with Cookies: Adopted for stateless, secure authentication (using token cookie), aligning with the spec’s "JWT authentication" requirement over session-based cookies.
 
-    Docker: Included for consistent environments, though currently being debugged for full functionality.
+### Future Improvements
 
-Future Improvements
+1. Docker Fix: Resolve .env loading issues in docker-compose.yml for seamless containerized deployment.
 
-    Docker Fix: Resolve .env loading issues in docker-compose.yml for seamless containerized deployment.
+2. Pagination: Implement for customers and notifications to handle large datasets efficiently.
 
-    Pagination: Implement for customers and notifications to handle large datasets efficiently.
+3. Enhanced Authentication: Explore OAuth or additional JWT features (e.g., refresh tokens) for broader security options.
 
-    Enhanced Authentication: Explore OAuth or additional JWT features (e.g., refresh tokens) for broader security options.
+4. Testing: Add unit and integration tests for API endpoints, Socket.IO events, and frontend components.
 
-    Testing: Add unit and integration tests for API endpoints, Socket.IO events, and frontend components.
+5. UI Enhancements: Incorporate more Framer Motion animations for a polished, interactive experience.
 
-    UI Enhancements: Incorporate more Framer Motion animations for a polished, interactive experience.
-
-    Search Functionality: Integrate Elasticsearch for advanced search capabilities if required by future needs.
+6. Search Functionality: Integrate Elasticsearch for advanced search capabilities if required by future needs.
