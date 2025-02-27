@@ -16,15 +16,23 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DataTable } from "./data-table";
+import { columns } from "./columns";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
-import { Customer, CustomerInput } from "@/types/customer";
+import { CustomerInput } from "@/types/customer";
 import { motion } from "framer-motion";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
-import { DataTable } from "./data-table";
-import { columns } from "./columns";
-import { Table } from "@tanstack/react-table";
+import { z } from "zod";
+
+const customerSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  contactInfo: z.string().email("Invalid email address"),
+  outstandingAmount: z.number().min(0, "Amount must be non-negative"),
+  dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid date"),
+  paymentStatus: z.enum(["pending", "completed", "overdue"]),
+});
 
 export default function CustomersPage() {
   const { data: customers = [], error, isLoading } = useGetCustomersQuery();
@@ -36,9 +44,14 @@ export default function CustomersPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
-  const [tableInstance, setTableInstance] = useState<Table<Customer> | null>(
-    null
-  );
+  const [singleCustomer, setSingleCustomer] = useState({
+    name: "",
+    contactInfo: "",
+    outstandingAmount: "",
+    dueDate: "",
+    paymentStatus: "pending" as "pending" | "completed" | "overdue",
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const downloadTemplate = () => {
     const ws = XLSX.utils.json_to_sheet([
@@ -114,7 +127,7 @@ export default function CustomersPage() {
     return { valid, errors };
   };
 
-  const handleSave = async () => {
+  const handleSaveFile = async () => {
     if (!file) {
       setFileError("No file selected");
       return;
@@ -172,14 +185,61 @@ export default function CustomersPage() {
   const handleDelete = async () => {
     try {
       await deleteCustomers(selectedIds).unwrap();
-      setSelectedIds([]); // Reset selection
-      if (tableInstance) {
-        tableInstance.setRowSelection({}); // Reset Tanstack selection
-      }
+      setSelectedIds([]);
       toast.success("Selected customers deleted successfully");
     } catch (err) {
       console.error("Delete failed:", err);
       toast.error("Failed to delete customers");
+    }
+  };
+
+  const handleSingleCustomerChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setSingleCustomer((prev) => ({
+      ...prev,
+      [name]:
+        name === "outstandingAmount"
+          ? value === ""
+            ? ""
+            : parseFloat(value)
+          : value,
+    }));
+  };
+
+  const handleSingleCustomerSubmit = async () => {
+    try {
+      const validatedData = customerSchema.parse({
+        ...singleCustomer,
+        outstandingAmount:
+          singleCustomer.outstandingAmount === ""
+            ? 0
+            : singleCustomer.outstandingAmount,
+        dueDate: new Date(singleCustomer.dueDate).toISOString(),
+      });
+      await uploadCustomers([validatedData]).unwrap();
+      toast.success("Customer added successfully");
+      setSingleCustomer({
+        name: "",
+        contactInfo: "",
+        outstandingAmount: "",
+        dueDate: "",
+        paymentStatus: "pending",
+      });
+      setFormErrors({});
+      setOpen(false);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const errors = err.errors.reduce((acc, curr) => {
+          acc[curr.path[0]] = curr.message;
+          return acc;
+        }, {} as Record<string, string>);
+        setFormErrors(errors);
+      } else {
+        toast.error("Failed to add customer");
+        console.error("Add customer failed:", err);
+      }
     }
   };
 
@@ -190,7 +250,7 @@ export default function CustomersPage() {
       transition={{ duration: 0.5 }}
       className="container mx-auto p-4 min-h-screen bg-gray-100"
     >
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="bg-blue-600 hover:bg-blue-700">
@@ -214,7 +274,10 @@ export default function CustomersPage() {
               )}
             </div>
             <DialogFooter>
-              <Button onClick={handleSave} disabled={uploadLoading || !file}>
+              <Button
+                onClick={handleSaveFile}
+                disabled={uploadLoading || !file}
+              >
                 {uploadLoading ? "Saving..." : "Save"}
               </Button>
               <Button variant="secondary" onClick={() => setOpen(false)}>
@@ -230,6 +293,101 @@ export default function CustomersPage() {
         >
           <Download className="w-4 h-4" /> Download Template
         </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="bg-green-600 hover:bg-green-700">
+              Add Customer
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-white text-gray-800">
+            <DialogHeader>
+              <DialogTitle>Add Single Customer</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col gap-4">
+              <div>
+                <Input
+                  name="name"
+                  value={singleCustomer.name}
+                  onChange={handleSingleCustomerChange}
+                  placeholder="Name"
+                  className="w-full"
+                />
+                {formErrors.name && (
+                  <p className="text-red-600 text-sm">{formErrors.name}</p>
+                )}
+              </div>
+              <div>
+                <Input
+                  name="contactInfo"
+                  value={singleCustomer.contactInfo}
+                  onChange={handleSingleCustomerChange}
+                  placeholder="Email"
+                  className="w-full"
+                />
+                {formErrors.contactInfo && (
+                  <p className="text-red-600 text-sm">
+                    {formErrors.contactInfo}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Input
+                  name="outstandingAmount"
+                  type="number"
+                  value={singleCustomer.outstandingAmount}
+                  onChange={handleSingleCustomerChange}
+                  placeholder="Outstanding Amount"
+                  className="w-full"
+                />
+                {formErrors.outstandingAmount && (
+                  <p className="text-red-600 text-sm">
+                    {formErrors.outstandingAmount}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Input
+                  name="dueDate"
+                  type="date"
+                  value={singleCustomer.dueDate}
+                  onChange={handleSingleCustomerChange}
+                  className="w-full"
+                />
+                {formErrors.dueDate && (
+                  <p className="text-red-600 text-sm">{formErrors.dueDate}</p>
+                )}
+              </div>
+              <div>
+                <select
+                  name="paymentStatus"
+                  value={singleCustomer.paymentStatus}
+                  onChange={handleSingleCustomerChange}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="completed">Completed</option>
+                  <option value="overdue">Overdue</option>
+                </select>
+                {formErrors.paymentStatus && (
+                  <p className="text-red-600 text-sm">
+                    {formErrors.paymentStatus}
+                  </p>
+                )}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                onClick={handleSingleCustomerSubmit}
+                disabled={uploadLoading}
+              >
+                {uploadLoading ? "Saving..." : "Save"}
+              </Button>
+              <Button variant="secondary" onClick={() => setOpen(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {isLoading ? (
@@ -244,7 +402,6 @@ export default function CustomersPage() {
           data={customers}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-          setTableInstance={setTableInstance} // Pass setter for table instance
         />
       )}
 

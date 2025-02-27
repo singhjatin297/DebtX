@@ -36,7 +36,6 @@ interface DataTableProps {
 export function DataTable({
   columns,
   data,
-  //   selectedIds,
   setSelectedIds,
   setTableInstance,
 }: DataTableProps) {

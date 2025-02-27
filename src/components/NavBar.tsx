@@ -5,10 +5,10 @@ import { apiSlice, useLogoutMutation } from "@/store/apiSlice";
 import React from "react";
 import { FloatingDock } from "@/components/ui/floating-dock";
 import {
+  IconBellRinging,
   IconBrandGithub,
   IconHome,
   IconLogout,
-  IconNewSection,
   IconUsers,
 } from "@tabler/icons-react";
 import { useDispatch } from "react-redux";
@@ -47,7 +47,7 @@ export default function Navbar() {
     {
       title: "Notifications",
       icon: (
-        <IconNewSection className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+        <IconBellRinging className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
       href: "/notifications",
     },
@@ -64,7 +64,7 @@ export default function Navbar() {
       icon: (
         <IconBrandGithub className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "#",
+      href: "https://github.com/singhjatin297/DebtX",
     },
   ];
 

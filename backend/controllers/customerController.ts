@@ -71,11 +71,11 @@ export const updateStatusController = async (
   const { customerId, status } = req.body as {
     customerId: string;
     status: "pending" | "completed" | "overdue";
-  }; // Type assertion
+  };
   try {
     const customer = await updateCustomerStatus(customerId, status);
     const message = `${customer.name}'s payment status updated to ${status}`;
-    const notificationType = `payment_${status}` as NotificationType; // Narrow type
+    const notificationType = `payment_${status}` as NotificationType;
     io.emit("notification", {
       type: notificationType,
       message: message,
@@ -88,7 +88,6 @@ export const updateStatusController = async (
   }
 };
 
-// Helper type for Notification['type']
 type NotificationType =
   | "new_customer"
   | "payment_received"

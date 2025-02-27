@@ -12,8 +12,7 @@ socket.on("connect", () => {
 });
 
 socket.on("notification", (data: Notification) => {
-  console.log("Notification received:", data); // For debugging
-  // No Redux dispatch—rely on API refetch
+  console.log("Notification received:", data);
 });
 
 socket.on("payment_update", (data: { customerId: string; status: string }) => {

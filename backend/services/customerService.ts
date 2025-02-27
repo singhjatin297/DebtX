@@ -35,7 +35,6 @@ export const updateCustomerStatus = async (
     paymentStatus: status,
   };
 
-  // Set outstandingAmount to 0 when status is "completed"
   if (status === "completed") {
     updateData.outstandingAmount = 0;
   }

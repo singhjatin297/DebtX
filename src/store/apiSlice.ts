@@ -4,7 +4,6 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Customer, CustomerInput } from "@/types/customer";
 import { Notification } from "@/types/notification";
 
-// Custom base query with redirect on 401
 const baseQueryWithRedirect = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api",
   credentials: "include",
