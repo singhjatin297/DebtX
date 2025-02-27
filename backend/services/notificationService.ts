@@ -4,7 +4,7 @@ import { Notification } from "../types/notification";
 const prisma = new PrismaClient();
 
 export const createNotification = async (
-  type: Notification["type"], // Use Notification type union
+  type: Notification["type"],
   message: string,
   userName: string,
   status: "pending" | "completed" | "overdue"

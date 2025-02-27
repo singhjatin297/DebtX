@@ -1,4 +1,5 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
+import { body, validationResult } from "express-validator";
 import {
   register,
   login,
@@ -6,6 +7,7 @@ import {
   logout,
 } from "../controllers/authController";
 
+const router = Router();
 /**
  * @openapi
  * /api/auth/register:
@@ -50,7 +52,23 @@ import {
  *                 error:
  *                   type: string
  */
-const router = Router();
+
+router.post(
+  "/register",
+  [
+    body("username").notEmpty().withMessage("Username is required").isString(),
+    body("password").notEmpty().withMessage("Password is required").isString(),
+    (req: Request, res: Response, next: NextFunction) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+        return;
+      }
+      next();
+    },
+  ],
+  register
+);
 
 /**
  * @openapi
@@ -99,8 +117,22 @@ const router = Router();
  *                 error:
  *                   type: string
  */
-router.post("/register", register);
-router.post("/login", login);
+router.post(
+  "/login",
+  [
+    body("username").notEmpty().withMessage("Username is required").isString(),
+    body("password").notEmpty().withMessage("Password is required").isString(),
+    (req: Request, res: Response, next: NextFunction) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+        return;
+      }
+      next();
+    },
+  ],
+  login
+);
 
 /**
  * @openapi

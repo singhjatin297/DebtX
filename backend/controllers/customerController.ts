@@ -6,9 +6,10 @@ import {
 } from "../services/customerService";
 import { createNotification } from "../services/notificationService";
 import { Server } from "socket.io";
+import logger from "../logger";
 
 export const getAllCustomers = async (req: Request, res: Response) => {
-  const userId = req.signedCookies.session;
+  const userId = req.cookies.token;
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
   const customers = await getCustomers();
   res.json(customers);
@@ -19,7 +20,7 @@ export const uploadCustomersController = async (
   res: Response,
   io: Server
 ) => {
-  const userId = req.signedCookies.session;
+  const userId = req.cookies.token;
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
   const customers = req.body;
   try {
@@ -39,7 +40,7 @@ export const uploadCustomersController = async (
     }
     res.json({ message: "Customers uploaded successfully", count });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(400).json({ error: "Failed to upload customers" });
   }
 };
@@ -48,14 +49,14 @@ export const deleteCustomersController = async (
   req: Request,
   res: Response
 ) => {
-  const userId = req.signedCookies.session;
+  const userId = req.cookies.token;
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
   const { ids } = req.body;
   try {
     await deleteCustomersService(ids);
     res.json({ message: "Customers deleted successfully" });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(400).json({ error: "Failed to delete customers" });
   }
 };
@@ -65,7 +66,7 @@ export const updateStatusController = async (
   res: Response,
   io: Server
 ) => {
-  const userId = req.signedCookies.session;
+  const userId = req.cookies.token;
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
   const { customerId, status } = req.body as {
     customerId: string;
@@ -82,7 +83,7 @@ export const updateStatusController = async (
     await createNotification(notificationType, message, customer.name, status);
     res.json({ message: "Status updated successfully", customer });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(400).json({ error: "Failed to update status" });
   }
 };

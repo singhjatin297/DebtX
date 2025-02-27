@@ -1,15 +1,25 @@
+"use client";
+
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Customer, CustomerInput } from "@/types/customer";
 import { Notification } from "@/types/notification";
 
-console.log("API Base URL:", process.env.NEXT_PUBLIC_API_URL);
+// Custom base query with redirect on 401
+const baseQueryWithRedirect = fetchBaseQuery({
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api",
+  credentials: "include",
+  prepareHeaders: (headers) => {
+    headers.set("Content-Type", "application/json");
+    return headers;
+  },
+});
 
 export const apiSlice = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api",
-    credentials: "include",
-  }),
+  baseQuery: async (args, api, extraOptions) => {
+    const result = await baseQueryWithRedirect(args, api, extraOptions);
+    return result;
+  },
   tagTypes: ["Auth", "Customers", "Notifications"],
   endpoints: (builder) => ({
     getCustomers: builder.query<Customer[], void>({

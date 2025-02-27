@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
@@ -9,6 +9,8 @@ import paymentRoutes from "./routes/paymentRoutes";
 import notificationRoutes from "./routes/notificationRoutes";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
+import logger from "./logger";
+import { authMiddleware } from "./middleware/authMiddleware";
 
 const app = express();
 const server = http.createServer(app);
@@ -35,8 +37,8 @@ app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-  socket.on("disconnect", () => console.log("User disconnected:", socket.id));
+  logger.info("User connected:", socket.id);
+  socket.on("disconnect", () => logger.info("User disconnected:", socket.id));
 });
 
 app.get("/", (req, res) => {
@@ -44,11 +46,16 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-app.use("/api/customers", customerRoutes(io));
-app.use("/api/payments", paymentRoutes(io));
-app.use("/api/notifications", notificationRoutes());
+app.use("/api/customers", authMiddleware, customerRoutes(io));
+app.use("/api/payments", authMiddleware, paymentRoutes(io));
+app.use("/api/notifications", authMiddleware, notificationRoutes());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.use((err: Error, req: Request, res: Response) => {
+  logger.error("Server error:", err);
+  res.status(500).json({ error: { name: err.name, message: err.message } });
+});
+
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  logger.info(`Server running on http://localhost:${PORT}`);
 });

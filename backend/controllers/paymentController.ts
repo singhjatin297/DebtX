@@ -4,7 +4,7 @@ import { processPayment } from "../services/paymentService";
 import { createNotification } from "../services/notificationService";
 
 export const mockPayment = async (req: Request, res: Response, io: Server) => {
-  const userId = req.signedCookies.session;
+  const userId = req.cookies.token;
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
   const { customerId, amount } = req.body;
   const customer = await processPayment(customerId, amount);
